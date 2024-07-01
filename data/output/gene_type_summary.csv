@@ -1,0 +1,12 @@
+type_of_gene,count
+protein-coding,20634
+pseudo,17469
+other,845
+unknown,1286
+ncRNA,22103
+tRNA,701
+rRNA,785
+scRNA,4
+snoRNA,1201
+snRNA,167
+biological-region,128261

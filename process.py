@@ -1,9 +1,12 @@
 import gzip
 import logging
+from collections import defaultdict
 
 # Constants
 INPUT_FILE = 'data/input/Homo_sapiens.gene_info.gz'
-OUTPUT_FILE = 'data/output/protein_coding_gene.csv'
+PROTEIN_CODING_OUTPUT_FILE = 'data/output/protein_coding_gene.csv'
+ALL_GENES_OUTPUT_FILE = 'data/output/all_gene.csv'
+SUMMARY_OUTPUT_FILE = 'data/output/gene_type_summary.csv'
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 COLUMNS = ['GeneID', 'Symbol', 'chromosome', 'dbXrefs', 'type_of_gene']
 DBXREF_KEYS = ['Ensembl', 'HGNC', 'MIM']
@@ -13,19 +16,34 @@ def extract_dbxref_values(dbxrefs, keys=DBXREF_KEYS):
                    for key_val in dbxrefs.split('|') if ':' in key_val}
     return [dbxref_dict.get(key, '') for key in keys]
 
-def parse_gene_info(input_file, output_file):
+def parse_gene_info(input_file, protein_coding_output_file, all_genes_output_file, summary_output_file):
+    gene_type_count = defaultdict(int)
+    
     try:
-        with gzip.open(input_file, 'rt') as infile, open(output_file, 'w') as outfile:
+        with gzip.open(input_file, 'rt') as infile, \
+             open(protein_coding_output_file, 'w') as pc_outfile, \
+             open(all_genes_output_file, 'w') as all_outfile:
+            
             header = infile.readline().strip().split('\t')
             indices = {col: header.index(col) for col in COLUMNS}
-            outfile.write('GeneID,Symbol,chromosome,Ensembl,HGNC,MIM\n')
+            pc_outfile.write('GeneID,Symbol,chromosome,Ensembl,HGNC,MIM\n')
+            all_outfile.write('GeneID,Symbol,chromosome,Ensembl,HGNC,MIM,type_of_gene\n')
 
             for line in infile:
                 row = line.strip().split('\t')
-                if row[indices['type_of_gene']] == 'protein-coding':
-                    gene_info = [row[indices[col]] for col in ['GeneID', 'Symbol', 'chromosome']]
-                    dbxrefs_values = extract_dbxref_values(row[indices['dbXrefs']])
-                    outfile.write(','.join(gene_info + dbxrefs_values) + '\n')
+                gene_info = [row[indices[col]] for col in ['GeneID', 'Symbol', 'chromosome']]
+                dbxrefs_values = extract_dbxref_values(row[indices['dbXrefs']])
+                type_of_gene = row[indices['type_of_gene']]
+                gene_type_count[type_of_gene] += 1
+
+                all_outfile.write(','.join(gene_info + dbxrefs_values + [type_of_gene]) + '\n')
+                if type_of_gene == 'protein-coding':
+                    pc_outfile.write(','.join(gene_info + dbxrefs_values) + '\n')
+
+        with open(summary_output_file, 'w') as summary_outfile:
+            summary_outfile.write('type_of_gene,count\n')
+            for gene_type, count in gene_type_count.items():
+                summary_outfile.write(f'{gene_type},{count}\n')
 
         logging.info("File processing completed successfully.")
     except Exception as e:
@@ -37,7 +55,7 @@ def setup_logging():
 
 def main():
     setup_logging()
-    parse_gene_info(INPUT_FILE, OUTPUT_FILE)
+    parse_gene_info(INPUT_FILE, PROTEIN_CODING_OUTPUT_FILE, ALL_GENES_OUTPUT_FILE, SUMMARY_OUTPUT_FILE)
 
 if __name__ == '__main__':
     main()
