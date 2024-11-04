@@ -1,9 +1,9 @@
 type_of_gene,count
 protein-coding,20621
-pseudo,17480
+pseudo,17483
 other,845
-unknown,1191
-ncRNA,22104
+unknown,1190
+ncRNA,22101
 tRNA,701
 rRNA,785
 scRNA,4
