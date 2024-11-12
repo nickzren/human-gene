@@ -10,7 +10,7 @@ SUMMARY_OUTPUT_FILE = 'data/output/gene_type_summary.csv'
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 COLUMNS = ['GeneID', 'Symbol', 'chromosome', 'dbXrefs', 'type_of_gene']
 DBXREF_KEYS = ['Ensembl', 'HGNC', 'MIM']
-EXCLUDE_TYPE = 'Biological-region'
+EXCLUDE_TYPE = 'biological-region'
 
 def extract_dbxref_values(dbxrefs, keys=DBXREF_KEYS):
     dbxref_dict = {key_val.split(':')[0]: ':'.join(key_val.split(':')[1:]) 
@@ -37,7 +37,7 @@ def parse_gene_info(input_file, protein_coding_output_file, all_genes_output_fil
                 type_of_gene = row[indices['type_of_gene']]
                 gene_type_count[type_of_gene] += 1
 
-                # Exclude "Biological-region" genes from all_genes_output_file
+                # Exclude "biological-region" genes from all_genes_output_file
                 if type_of_gene != EXCLUDE_TYPE:
                     all_outfile.write(','.join(gene_info + dbxrefs_values + [type_of_gene]) + '\n')
                 
