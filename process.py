@@ -8,7 +8,7 @@ PROTEIN_CODING_OUTPUT_FILE = 'data/output/protein_coding_gene.csv'
 ALL_GENES_OUTPUT_FILE = 'data/output/all_gene.csv'
 SUMMARY_OUTPUT_FILE = 'data/output/gene_type_summary.csv'
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
-COLUMNS = ['GeneID', 'Symbol', 'chromosome', 'dbXrefs', 'type_of_gene']
+COLUMNS = ['GeneID', 'Symbol', 'Synonyms', 'chromosome', 'dbXrefs', 'type_of_gene']
 DBXREF_KEYS = ['Ensembl', 'HGNC', 'MIM']
 EXCLUDE_TYPE = 'biological-region'
 
@@ -27,12 +27,14 @@ def parse_gene_info(input_file, protein_coding_output_file, all_genes_output_fil
             
             header = infile.readline().strip().split('\t')
             indices = {col: header.index(col) for col in COLUMNS}
-            pc_outfile.write('GeneID,Symbol,chromosome,Ensembl,HGNC,MIM\n')
-            all_outfile.write('GeneID,Symbol,chromosome,Ensembl,HGNC,MIM,type_of_gene\n')
+            
+            # Add 'Synonyms' to the output headers
+            pc_outfile.write('GeneID,Symbol,Synonyms,chromosome,Ensembl,HGNC,MIM\n')
+            all_outfile.write('GeneID,Symbol,Synonyms,chromosome,Ensembl,HGNC,MIM,type_of_gene\n')
 
             for line in infile:
                 row = line.strip().split('\t')
-                gene_info = [row[indices[col]] for col in ['GeneID', 'Symbol', 'chromosome']]
+                gene_info = [row[indices[col]] for col in ['GeneID', 'Symbol', 'Synonyms', 'chromosome']]
                 dbxrefs_values = extract_dbxref_values(row[indices['dbXrefs']])
                 type_of_gene = row[indices['type_of_gene']]
                 gene_type_count[type_of_gene] += 1
