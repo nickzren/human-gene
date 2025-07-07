@@ -5,13 +5,12 @@ This repository processes NCBI gene information, extracting data for protein-cod
 ### Execution
 
 ```
-conda env create -f environment.yml 
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-conda activate human-gene
-
+# Run the pipeline
 bash download.sh
-
-python process.py
+uv run python process.py
 ```
 
 ### Input
